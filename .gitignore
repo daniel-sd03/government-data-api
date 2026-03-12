@@ -1,0 +1,30 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Logs
+*.log
+
+# Spring Boot
+*.pid
+*.seed
+*.pid.lock
+
+# IDE - Eclipse
+.project
+.classpath
+.settings/
+
+# IDE - IntelliJ
+.idea/
+*.iml
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
