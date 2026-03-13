@@ -1,7 +1,12 @@
 package sodresoftwares.government.api.client;
 
+import java.util.List;
+
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import sodresoftwares.government.api.model.user.StateDTO;
 
 @Component
 public class IbgeClient {
@@ -14,12 +19,12 @@ public class IbgeClient {
                 .build();
     }
 
-    public Object getStates() {
+    public List<StateDTO> getStates() {
         return webClient
                 .get()
                 .uri("/api/v1/localidades/estados")
                 .retrieve()
-                .bodyToMono(Object.class)
+                .bodyToMono(new ParameterizedTypeReference<List<StateDTO>>() {})
                 .block();
     }
 }
