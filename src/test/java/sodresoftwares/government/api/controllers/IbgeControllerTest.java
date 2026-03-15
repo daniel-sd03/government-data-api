@@ -1,0 +1,68 @@
+package sodresoftwares.government.api.controllers;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import sodresoftwares.government.api.exception.ApiException;
+import sodresoftwares.government.api.infra.security.SecurityFilter;
+import sodresoftwares.government.api.model.user.StateDTO;
+import sodresoftwares.government.api.services.IbgeService;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
+@WebMvcTest(
+	    controllers = IbgeController.class,
+	    excludeFilters = @ComponentScan.Filter(
+	        type = FilterType.ASSIGNABLE_TYPE,
+	        classes = SecurityFilter.class
+	    )
+	)
+@AutoConfigureMockMvc(addFilters = false)
+public class IbgeControllerTest {
+
+	@Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private IbgeService ibgeService;
+   
+    @Test
+    void getStatesSucess() throws Exception {
+
+        List<StateDTO> states = List.of(
+            new StateDTO(1, "Acre", "AC"),
+            new StateDTO(2, "Alagoas", "AL")
+        );
+
+        when(ibgeService.getStates()).thenReturn(states);
+
+        mockMvc.perform(get("/states"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(2))
+                .andExpect(jsonPath("$[0].nome").value("Acre"));
+    }
+    
+    @Test
+    void getStatesError() throws Exception {
+
+        when(ibgeService.getStates()).thenThrow(new ApiException(404, "No states found"));
+
+        mockMvc.perform(get("/states"))
+        	.andExpect(status().isNotFound())
+        	.andExpect(jsonPath("$.status").value(404))
+        	.andExpect(jsonPath("$.message").value("No states found"));
+    }
+}
