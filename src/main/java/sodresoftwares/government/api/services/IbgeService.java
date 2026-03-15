@@ -42,7 +42,7 @@ public class IbgeService {
         } catch (ApiException e) {
         	throw e;
         } catch (Exception e) {
-            logger.error("tr to connect to IBGE API", e);
+            logger.error("Failed to connect to IBGE API", e);
             throw new ApiException(501, "Failed communicate with IBGE API: " + e.getMessage());
         }
     }
