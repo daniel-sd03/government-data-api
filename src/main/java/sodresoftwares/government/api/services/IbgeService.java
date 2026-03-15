@@ -27,21 +27,22 @@ public class IbgeService {
         	
         	logger.debug("Calling IBGE API to fetch states");
             List<StateDTO> states = ibgeClient.getStates();
-            logger.debug("States returned by IBGE API: {}", states.size());
-            
+
             if (states == null || states.isEmpty()) {
                 logger.warn("No states found in API do IBGE response ");
                 throw new ApiException(404, "No states found");
             }
+            logger.debug("States returned by IBGE API: {}", states.size());
             
             return states;
 
         } catch (WebClientResponseException e) {
             logger.error("IBGE API error: status={}, body={}", e.getStatusCode().value(), e.getResponseBodyAsString());
             throw new ApiException(e.getStatusCode().value(), "IBGE API error: " + e.getMessage());
-
+        } catch (ApiException e) {
+        	throw e;
         } catch (Exception e) {
-            logger.error("Failed to connect to IBGE API", e);
+            logger.error("tr to connect to IBGE API", e);
             throw new ApiException(501, "Failed communicate with IBGE API: " + e.getMessage());
         }
     }
