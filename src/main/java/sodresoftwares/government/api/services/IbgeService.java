@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
@@ -22,9 +23,10 @@ public class IbgeService {
         this.ibgeClient = ibgeClient;
     }
 
+    @Cacheable(value = "states", key = "'all'")
     public List<StateDTO> getStates() {
         try {
-        	
+        	System.out.println("passou aqui");
         	logger.debug("Calling IBGE API to fetch states");
             List<StateDTO> states = ibgeClient.getStates();
 
