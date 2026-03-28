@@ -21,8 +21,6 @@ import sodresoftwares.government.api.infra.security.SecurityFilter;
 import sodresoftwares.government.api.model.user.StateDTO;
 import sodresoftwares.government.api.services.IbgeService;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-
 @WebMvcTest(
 	    controllers = IbgeController.class,
 	    excludeFilters = @ComponentScan.Filter(
