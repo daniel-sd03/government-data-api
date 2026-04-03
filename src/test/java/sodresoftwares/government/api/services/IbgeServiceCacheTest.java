@@ -50,7 +50,7 @@ public class IbgeServiceCacheTest {
 		List<StateDTO> result02 = ibgeService.getStates();
 
 		assertEquals(result01, result02);
-		verify(ibgeClient, times(1)).getStates();
+		verify(ibgeClient, times(1)).getStates(); 
 	}
 
 	@Test
