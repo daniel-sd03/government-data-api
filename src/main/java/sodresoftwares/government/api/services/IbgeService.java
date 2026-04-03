@@ -9,43 +9,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import sodresoftwares.government.api.client.IbgeClient;
-import sodresoftwares.government.api.exception.ApiException;
+import sodresoftwares.government.api.infra.handler.ApiHandler;
 import sodresoftwares.government.api.model.user.StateDTO;
 
 @Service
 public class IbgeService {
-
-	private static final Logger logger = LoggerFactory.getLogger(IbgeService.class);
-
     private final IbgeClient ibgeClient;
+    private final ApiHandler apiHandler; //
 
-    public IbgeService(IbgeClient ibgeClient) {
+    public IbgeService(IbgeClient ibgeClient, ApiHandler apiHandler) {
         this.ibgeClient = ibgeClient;
+        this.apiHandler = apiHandler;
     }
 
     @Cacheable(value = "states", key = "'all'")
     public List<StateDTO> getStates() {
-        try {
-        	System.out.println("passou aqui");
-        	logger.debug("Calling IBGE API to fetch states");
-            List<StateDTO> states = ibgeClient.getStates();
-
-            if (states == null || states.isEmpty()) {
-                logger.warn("No states found in API do IBGE response ");
-                throw new ApiException(404, "No states found");
-            }
-            logger.debug("States returned by IBGE API: {}", states.size());
-            
-            return states;
-
-        } catch (WebClientResponseException e) {
-            logger.error("IBGE API error: status={}, body={}", e.getStatusCode().value(), e.getResponseBodyAsString());
-            throw new ApiException(e.getStatusCode().value(), "IBGE API error: " + e.getMessage());
-        } catch (ApiException e) {
-        	throw e;
-        } catch (Exception e) {
-            logger.error("Failed to connect to IBGE API", e);
-            throw new ApiException(501, "Failed communicate with IBGE API: " + e.getMessage());
-        }
+        return apiHandler.execute("IBGE States", ibgeClient::getStates);
     }
 }
