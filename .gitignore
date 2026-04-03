@@ -14,6 +14,7 @@ target/
 .project
 .classpath
 .settings/
+.factorypath
 
 # IDE - IntelliJ
 .idea/
