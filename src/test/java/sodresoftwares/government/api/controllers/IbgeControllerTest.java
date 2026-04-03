@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import sodresoftwares.government.api.exception.ApiException;
 import sodresoftwares.government.api.infra.security.SecurityFilter;
 import sodresoftwares.government.api.model.user.MunicipalityDTO;
+import sodresoftwares.government.api.model.user.RegionDTO;
 import sodresoftwares.government.api.model.user.StateDTO;
 import sodresoftwares.government.api.services.IbgeService;
 
@@ -44,6 +45,7 @@ public class IbgeControllerTest {
         List<StateDTO> states = List.of(
             new StateDTO(1, "Acre", "AC"),
             new StateDTO(2, "Alagoas", "AL")
+
         );
 
         when(ibgeService.getStates()).thenReturn(states);
@@ -63,6 +65,33 @@ public class IbgeControllerTest {
         	.andExpect(status().isNotFound())
         	.andExpect(jsonPath("$.status").value(404))
         	.andExpect(jsonPath("$.message").value("No states found"));
+    }
+
+    @Test
+    void getRegionsSuccess() throws Exception {
+
+        List<RegionDTO> regions = List.of(
+            new RegionDTO(1, "Norte", "N"),
+            new RegionDTO(2, "Nordeste", "NE")
+        );
+
+        when(ibgeService.getRegions()).thenReturn(regions);
+
+        mockMvc.perform(get("/regioes"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(2))
+                .andExpect(jsonPath("$[0].nome").value("Norte"));
+    }
+
+    @Test
+    void getRegionsError() throws Exception {
+
+        when(ibgeService.getRegions()).thenThrow(new ApiException(404, "No regions found"));
+
+        mockMvc.perform(get("/regioes"))
+        	.andExpect(status().isNotFound())
+        	.andExpect(jsonPath("$.status").value(404))
+        	.andExpect(jsonPath("$.message").value("No regions found"));
     }
 
     @Test

@@ -8,6 +8,7 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import sodresoftwares.government.api.model.user.MunicipalityDTO;
+import sodresoftwares.government.api.model.user.RegionDTO;
 import sodresoftwares.government.api.model.user.StateDTO;
 
 @Component
@@ -32,6 +33,15 @@ public class IbgeClient {
                 .uri("/estados")
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<StateDTO>>() {})
+                .block();
+    }
+
+    public List<RegionDTO> getRegions() {
+        return webClient
+                .get()
+                .uri("/regioes")
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<RegionDTO>>() {})
                 .block();
     }
 

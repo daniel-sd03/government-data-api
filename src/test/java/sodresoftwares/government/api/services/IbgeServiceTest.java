@@ -23,6 +23,7 @@ import sodresoftwares.government.api.client.IbgeClient;
 import sodresoftwares.government.api.exception.ApiException;
 import sodresoftwares.government.api.infra.handler.ApiHandler;
 import sodresoftwares.government.api.model.user.MunicipalityDTO;
+import sodresoftwares.government.api.model.user.RegionDTO;
 import sodresoftwares.government.api.model.user.StateDTO;
 
 @ExtendWith(MockitoExtension.class)
@@ -67,5 +68,20 @@ public class IbgeServiceTest {
 
 		assertThat(result).isEqualTo(mockMunicipalities);
 		verify(apiHandler).execute(eq("IBGE Municipalities - SP"), any());
+	}
+
+	@Test
+	void getRegionsSuccess() {
+        List<RegionDTO> mockRegions = List.of(
+                new RegionDTO(1, "Norte", "N"),
+                new RegionDTO(2, "Nordeste", "NE")
+            );
+
+		when(apiHandler.execute(anyString(), any())).thenReturn(mockRegions);
+
+		List<RegionDTO> result = ibgeService.getRegions();
+
+		assertThat(result).isEqualTo(mockRegions);
+		verify(apiHandler).execute(eq("IBGE Regions"), any());
 	}
 }
