@@ -19,7 +19,7 @@ public class IbgeController {
 	}
 	
 	@GetMapping("/states")
-	public ResponseEntity<?> getStates() {
+	public ResponseEntity<List<StateDTO>> getStates() {
 			List<StateDTO> states = ibgeService.getStates();
 			return ResponseEntity.ok(states);
 	}
