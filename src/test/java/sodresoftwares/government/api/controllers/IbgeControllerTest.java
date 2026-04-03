@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import sodresoftwares.government.api.exception.ApiException;
 import sodresoftwares.government.api.infra.security.SecurityFilter;
+import sodresoftwares.government.api.model.user.MunicipalityDTO;
 import sodresoftwares.government.api.model.user.StateDTO;
 import sodresoftwares.government.api.services.IbgeService;
 
@@ -62,5 +63,35 @@ public class IbgeControllerTest {
         	.andExpect(status().isNotFound())
         	.andExpect(jsonPath("$.status").value(404))
         	.andExpect(jsonPath("$.message").value("No states found"));
+    }
+
+    @Test
+    void getMunicipalitiesByStatesSuccess() throws Exception {
+        String uf = "SP";
+
+        List<MunicipalityDTO> municipalities = List.of(
+                new MunicipalityDTO(1, "São Paulo"),
+                new MunicipalityDTO(2, "Campinas")
+        );
+
+        when(ibgeService.getMunicipalitiesByStates(uf)).thenReturn(municipalities);
+
+        mockMvc.perform(get("/states/{uf}/municipalities", uf))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(2))
+                .andExpect(jsonPath("$[0].nome").value("São Paulo"));
+    }
+
+    @Test
+    void getMunicipalitiesByStatesError() throws Exception {
+        String uf = "SP";
+
+        when(ibgeService.getMunicipalitiesByStates(uf))
+                .thenThrow(new ApiException(404, "No municipalities found"));
+
+        mockMvc.perform(get("/states/{uf}/municipalities", uf))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("No municipalities found"));
     }
 }

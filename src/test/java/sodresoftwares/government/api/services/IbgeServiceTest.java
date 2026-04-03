@@ -22,6 +22,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import sodresoftwares.government.api.client.IbgeClient;
 import sodresoftwares.government.api.exception.ApiException;
 import sodresoftwares.government.api.infra.handler.ApiHandler;
+import sodresoftwares.government.api.model.user.MunicipalityDTO;
 import sodresoftwares.government.api.model.user.StateDTO;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,5 +50,22 @@ public class IbgeServiceTest {
 
 		assertThat(result).isEqualTo(mockStates);
 		verify(apiHandler).execute(eq("IBGE States"), any());
+	}
+
+	@Test
+	void getMunicipalitiesByStatesSuccess() {
+		String uf = "SP";
+
+		List<MunicipalityDTO> mockMunicipalities = List.of(
+				new MunicipalityDTO(1, "São Paulo"),
+				new MunicipalityDTO(2, "Campinas")
+		);
+
+		when(apiHandler.execute(anyString(), any())).thenReturn(mockMunicipalities);
+
+		List<MunicipalityDTO> result = ibgeService.getMunicipalitiesByStates(uf);
+
+		assertThat(result).isEqualTo(mockMunicipalities);
+		verify(apiHandler).execute(eq("IBGE Municipalities - SP"), any());
 	}
 }

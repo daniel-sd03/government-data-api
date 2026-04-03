@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import sodresoftwares.government.api.client.IbgeClient;
 import sodresoftwares.government.api.infra.handler.ApiHandler;
+import sodresoftwares.government.api.model.user.MunicipalityDTO;
 import sodresoftwares.government.api.model.user.StateDTO;
 
 @Service
@@ -25,5 +26,11 @@ public class IbgeService {
     @Cacheable(value = "states", key = "'all'")
     public List<StateDTO> getStates() {
         return apiHandler.execute("IBGE States", ibgeClient::getStates);
+    }
+
+    @Cacheable(value = "municipalities", key = "#uf.toUpperCase()")
+    public List<MunicipalityDTO> getMunicipalitiesByStates(String uf) {
+        return apiHandler.execute("IBGE Municipalities - " + uf.toUpperCase(),
+                () -> ibgeClient.getMunicipalitiesByStates(uf));
     }
 }
