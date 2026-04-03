@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import sodresoftwares.government.api.model.user.MunicipalityDTO;
+import sodresoftwares.government.api.model.user.RegionDTO;
 import sodresoftwares.government.api.model.user.StateDTO;
 import sodresoftwares.government.api.services.IbgeService;
 
@@ -24,6 +25,12 @@ public class IbgeController {
 	public ResponseEntity<List<StateDTO>> getStates() {
 			List<StateDTO> states = ibgeService.getStates();
 			return ResponseEntity.ok(states);
+	}
+
+	@GetMapping("/regioes")
+	public ResponseEntity<List<RegionDTO>> getRegions() {
+		List<RegionDTO> regions = ibgeService.getRegions();
+		return ResponseEntity.ok(regions);
 	}
 
 	@GetMapping("/states/{uf}/municipalities")
