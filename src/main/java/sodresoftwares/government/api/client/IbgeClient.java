@@ -53,4 +53,13 @@ public class IbgeClient {
                 .bodyToMono(new ParameterizedTypeReference<List<MunicipalityDTO>>() {})
                 .block();
     }
+
+    public List<MunicipalityDTO> getAllMunicipalities() {
+        return webClient
+                .get()
+                .uri("/municipios")
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<MunicipalityDTO>>() {})
+                .block();
+    }
 }

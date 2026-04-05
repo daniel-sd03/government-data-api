@@ -123,4 +123,61 @@ public class IbgeControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("No municipalities found"));
     }
+
+    @Test
+    void getAllMunicipalitiesSuccess() throws Exception {
+        List<MunicipalityDTO> municipalities = List.of(
+                new MunicipalityDTO(1, "São Paulo"),
+                new MunicipalityDTO(2, "Belo Horizonte")
+        );
+
+        when(ibgeService.getAllMunicipalities()).thenReturn(municipalities);
+
+        mockMvc.perform(get("/municipalities"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(2))
+                .andExpect(jsonPath("$[0].nome").value("São Paulo"));
+    }
+
+    @Test
+    void getAllMunicipalitiesError() throws Exception {
+        when(ibgeService.getAllMunicipalities())
+                .thenThrow(new ApiException(404, "No municipalities found"));
+
+        mockMvc.perform(get("/municipalities"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("No municipalities found"));
+    }
+
+    @Test
+    void searchMunicipalitiesSuccess() throws Exception {
+        String searchName = "São";
+
+        List<MunicipalityDTO> municipalities = List.of(
+                new MunicipalityDTO(1, "São Paulo"),
+                new MunicipalityDTO(3, "São Bernardo do Campo")
+        );
+
+        when(ibgeService.searchMunicipalitiesByName(searchName)).thenReturn(municipalities);
+
+        mockMvc.perform(get("/municipalities/search").param("name", searchName))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(2))
+                .andExpect(jsonPath("$[0].nome").value("São Paulo"))
+                .andExpect(jsonPath("$[1].nome").value("São Bernardo do Campo"));
+    }
+
+    @Test
+    void searchMunicipalitiesError() throws Exception {
+        String searchName = "Atlantida";
+
+        when(ibgeService.searchMunicipalitiesByName(searchName))
+                .thenThrow(new ApiException(404, "municipalities not found"));
+
+        mockMvc.perform(get("/municipalities/search").param("name", searchName))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("municipalities not found"));
+    }
 }

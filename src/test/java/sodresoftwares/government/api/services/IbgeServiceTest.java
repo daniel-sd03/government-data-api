@@ -35,6 +35,9 @@ public class IbgeServiceTest {
 	@Mock
 	private ApiHandler apiHandler;
 
+	@Mock
+	private IbgeService self;
+
 	@InjectMocks
 	private IbgeService ibgeService;
 
@@ -83,5 +86,65 @@ public class IbgeServiceTest {
 
 		assertThat(result).isEqualTo(mockRegions);
 		verify(apiHandler).execute(eq("IBGE Regions"), any());
+	}
+
+	@Test
+	void getAllMunicipalitiesSuccess() {
+		List<MunicipalityDTO> mockMunicipalities = List.of(
+				new MunicipalityDTO(1, "São Paulo"),
+				new MunicipalityDTO(2, "Campinas")
+		);
+
+		when(apiHandler.execute(anyString(), any())).thenReturn(mockMunicipalities);
+
+		List<MunicipalityDTO> result = ibgeService.getAllMunicipalities();
+
+		assertThat(result).isEqualTo(mockMunicipalities);
+		verify(apiHandler).execute(eq("IBGE Municipalities All - "), any());
+	}
+
+	@Test
+	void searchMunicipalitiesByNameSuccess() {
+		List<MunicipalityDTO> mockMunicipalities = List.of(
+				new MunicipalityDTO(1, "São Paulo"),
+				new MunicipalityDTO(2, "Campinas"),
+				new MunicipalityDTO(3, "São Bernardo do Campo")
+		);
+
+		when(self.getAllMunicipalities()).thenReturn(mockMunicipalities);
+
+		List<MunicipalityDTO> result = ibgeService.searchMunicipalitiesByName("são");
+
+		assertThat(result).hasSize(2);
+		assertThat(result.get(0).nome()).isEqualTo("São Paulo");
+		assertThat(result.get(1).nome()).isEqualTo("São Bernardo do Campo");
+	}
+
+	@Test
+	void searchMunicipalitiesByName_NullOrBlankName_ThrowsException() {
+		ApiException nullException = assertThrows(ApiException.class, () -> {
+			ibgeService.searchMunicipalitiesByName(null);
+		});
+		assertThat(nullException.getMessage()).isEqualTo("Name parameter is required");
+
+		ApiException blankException = assertThrows(ApiException.class, () -> {
+			ibgeService.searchMunicipalitiesByName("   ");
+		});
+		assertThat(blankException.getMessage()).isEqualTo("Name parameter is required");
+	}
+
+	@Test
+	void searchMunicipalitiesByName_NotFound_ThrowsException() {
+		List<MunicipalityDTO> mockMunicipalities = List.of(
+				new MunicipalityDTO(1, "São Paulo")
+		);
+
+		when(self.getAllMunicipalities()).thenReturn(mockMunicipalities);
+
+		ApiException exception = assertThrows(ApiException.class, () -> {
+			ibgeService.searchMunicipalitiesByName("Rio");
+		});
+
+		assertThat(exception.getMessage()).isEqualTo("municipalities not found");
 	}
 }

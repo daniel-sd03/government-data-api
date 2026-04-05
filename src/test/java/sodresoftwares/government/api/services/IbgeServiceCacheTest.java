@@ -2,6 +2,7 @@ package sodresoftwares.government.api.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,6 +18,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import sodresoftwares.government.api.client.IbgeClient;
 import sodresoftwares.government.api.exception.ApiException;
+import sodresoftwares.government.api.model.user.MunicipalityDTO;
 import sodresoftwares.government.api.model.user.StateDTO;
 import sodresoftwares.government.api.repositories.UserRepository;
 
@@ -75,5 +77,39 @@ public class IbgeServiceCacheTest {
 		assertThrows(ApiException.class, () -> ibgeService.getStates());
 
 		verify(ibgeClient, times(2)).getStates();
+	}
+
+	@Test
+	@DisplayName("should cache municipalities by UF ignoring case sensitivity")
+	void getMunicipalitiesByStatesCacheSuccess() {
+		String ufLower = "sp";
+		String ufUpper = "SP";
+
+		List<MunicipalityDTO> mockMunicipalities = List.of(new MunicipalityDTO(1, "São Paulo"));
+
+		when(ibgeClient.getMunicipalitiesByStates(anyString())).thenReturn(mockMunicipalities);
+
+		ibgeService.getMunicipalitiesByStates(ufLower);
+
+		ibgeService.getMunicipalitiesByStates(ufUpper);
+
+		verify(ibgeClient, times(1)).getMunicipalitiesByStates(anyString());
+	}
+
+	@Test
+	@DisplayName("should use cache via self-injection when searching municipalities by name")
+	void searchMunicipalitiesByNameUsesCache() {
+		List<MunicipalityDTO> mockMunicipalities = List.of(
+				new MunicipalityDTO(1, "São Paulo"),
+				new MunicipalityDTO(2, "São Bernardo")
+		);
+
+		when(ibgeClient.getAllMunicipalities()).thenReturn(mockMunicipalities);
+
+		ibgeService.searchMunicipalitiesByName("Paulo");
+
+		ibgeService.searchMunicipalitiesByName("Bernardo");
+
+		verify(ibgeClient, times(1)).getAllMunicipalities();
 	}
 }

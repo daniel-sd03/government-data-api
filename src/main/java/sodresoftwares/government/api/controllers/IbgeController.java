@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import sodresoftwares.government.api.model.user.MunicipalityDTO;
@@ -36,6 +37,18 @@ public class IbgeController {
 	@GetMapping("/states/{uf}/municipalities")
 	public ResponseEntity<List<MunicipalityDTO>> getMunicipalitiesByStates(@PathVariable String uf) {
 		List<MunicipalityDTO> municipalities = ibgeService.getMunicipalitiesByStates(uf);
+		return ResponseEntity.ok(municipalities);
+	}
+
+	@GetMapping("/municipalities")
+	public ResponseEntity<List<MunicipalityDTO>> getAllMunicipalities() {
+		List<MunicipalityDTO> municipalities = ibgeService.getAllMunicipalities();
+		return ResponseEntity.ok(municipalities);
+	}
+
+	@GetMapping("/municipalities/search")
+	public ResponseEntity<List<MunicipalityDTO>> searchMunicipalities(@RequestParam String name) {
+		List<MunicipalityDTO> municipalities = ibgeService.searchMunicipalitiesByName(name);
 		return ResponseEntity.ok(municipalities);
 	}
 }
