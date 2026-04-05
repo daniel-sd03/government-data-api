@@ -16,42 +16,28 @@ import sodresoftwares.government.api.model.user.LoginResponseDTO;
 import sodresoftwares.government.api.model.user.RegisterDTO;
 import sodresoftwares.government.api.model.user.User;
 import sodresoftwares.government.api.repositories.UserRepository;
+import sodresoftwares.government.api.services.AuthService;
 
 
 @RestController
 @RequestMapping("auth")
 public class AuthenticationController {
-	
-	private TokenService tokenService;
-	
-	private AuthenticationManager authenticationManager;
-	private UserRepository userRepository;
-	public AuthenticationController(AuthenticationManager authenticationManager, UserRepository userRepository, 
-			TokenService tokenService) {
-		this.authenticationManager = authenticationManager;
-		this.userRepository = userRepository;
-		this.tokenService = tokenService;
+
+	private final AuthService authService;
+
+	public AuthenticationController(AuthService authService) {
+		this.authService = authService;
 	}
-	
+
 	@PostMapping("/login")
 	public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO data) {
-		var usernamePassword = new  UsernamePasswordAuthenticationToken(data.login(), data.password());
-		var auth = this.authenticationManager.authenticate(usernamePassword);
-		
-		var token = tokenService.generateToken((User) auth.getPrincipal() );
-		
-		return ResponseEntity.ok(new LoginResponseDTO(token));
+		LoginResponseDTO response = authService.login(data);
+		return ResponseEntity.ok(response);
 	}
-	
+
 	@PostMapping("/register")
-	public ResponseEntity<Void> register(@RequestBody @Valid RegisterDTO data ) {
-		 if(this.userRepository.findByLogin(data.login()) != null) 
-			 return ResponseEntity.badRequest().build();
-		 
-		 String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-		 User newUser = new User(data.login(), encryptedPassword, data.role());
-		
-		 this.userRepository.save(newUser);
-		 return ResponseEntity.ok().build();
+	public ResponseEntity<Void> register(@RequestBody @Valid RegisterDTO data) {
+		authService.register(data);
+		return ResponseEntity.ok().build();
 	}
 }
